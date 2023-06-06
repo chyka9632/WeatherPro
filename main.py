@@ -12,21 +12,24 @@ st.subheader(f"{weather_parameter} for the next {forecast_days} days in {locatio
 
 if location:
     # Get the temperature/sky data
-    filtered_data = get_data(location, forecast_days)
+    try:
+        filtered_data = get_data(location, forecast_days)
 
-    if weather_parameter == "Temperature":
-        temperature = [x["main"]["temp"] for x in filtered_data]  # x is just a variable name
-        dates = [z["dt_txt"] for z in filtered_data]
+        if weather_parameter == "Temperature":
+            temperature = [(x["main"]["temp"] - 273.15) for x in filtered_data]  # x is just a variable name
+            dates = [z["dt_txt"] for z in filtered_data]
 
-        # Create a temperature plot
-        figure = px.line(x=dates, y=temperature, labels={"x": "Dates", "y": "Temperatures (C)"})
-        st.plotly_chart(figure)
+            # Create a temperature plot
+            figure = px.line(x=dates, y=temperature, labels={"x": "Dates", "y": "Temperatures (C)"})
+            st.plotly_chart(figure)
 
-    if weather_parameter == "Sky":
-        images = {"Clear": "images/clear.png", "Clouds": "images/cloud.png",
-                  "Rain": "images/rain.png", "Snow": "images/snow.png"}
-        sky_conditions = [y["weather"][0]["main"] for y in filtered_data]
-        image_paths = [images[w] for w in sky_conditions]
+        if weather_parameter == "Sky":
+            images = {"Clear": "images/clear.png", "Clouds": "images/cloud.png",
+                      "Rain": "images/rain.png", "Snow": "images/snow.png"}
+            sky_conditions = [y["weather"][0]["main"] for y in filtered_data]
+            image_paths = [images[w] for w in sky_conditions]
 
-        # Render a sky image
-        st.image(image_paths, width=110)
+            # Render a sky image
+            st.image(image_paths, width=110)
+    except KeyError:
+        st.write("Location does not exist")
